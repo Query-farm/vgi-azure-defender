@@ -3,13 +3,20 @@
   "version": "0.1.0",
   "type": "module",
   "main": "src/worker.ts",
-  "license": "LicenseRef-Proprietary",
-  "scripts": { "test": "bun test" },
+  "license": "MIT",
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "bash scripts/typecheck.sh"
+  },
   "dependencies": {
     "@vgi-azure/graph-core": "github:Query-farm/vgi-azure-graph-core",
     "@vgi-azure/node-auth": "github:Query-farm/vgi-azure-node-auth",
     "@query-farm/vgi": "^0.7.0",
     "@query-farm/apache-arrow": "^21.1.1",
     "@query-farm/vgi-rpc": "^0.9.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "@types/bun": "latest"
   }
 }

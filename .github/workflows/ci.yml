@@ -1,0 +1,17 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['README.md']
+  pull_request:
+    branches: [main]
+    paths-ignore: ['README.md']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: Query-farm/vgi-actions/.github/workflows/ts-ci.yml@main
