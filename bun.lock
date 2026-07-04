@@ -6,7 +6,7 @@
       "name": "@vgi-azure/defender",
       "dependencies": {
         "@query-farm/apache-arrow": "^21.1.1",
-        "@query-farm/vgi": "file:../vgi-typescript/query-farm-vgi-0.6.0.tgz",
+        "@query-farm/vgi": "^0.7.0",
         "@query-farm/vgi-rpc": "^0.9.0",
         "@vgi-azure/graph-core": "file:../vgi-azure-graph-core",
         "@vgi-azure/node-auth": "file:../vgi-azure-node-auth",
@@ -24,7 +24,7 @@
 
     "@query-farm/flechette": ["@query-farm/flechette@2.4.0", "", {}, "sha512-1dQTJZYsGdrE6isTHPVGb8WBI8GttY4vTsC3Rh1C+OZAdZbR8+Gg4Ds/RgXbBK+3Eeiaph9aR8Vx67ieEhtMhw=="],
 
-    "@query-farm/vgi": ["@query-farm/vgi@../vgi-typescript/query-farm-vgi-0.6.0.tgz", { "dependencies": { "@noble/ciphers": "^2.2.0", "@query-farm/flechette": "^2.4.0" }, "peerDependencies": { "@query-farm/apache-arrow": "^21.1.1", "@query-farm/vgi-rpc": "^0.9.0" } }, "sha512-FYXYjr/L5gzONYM2NHy2Tt0k1//AdGwqrPPBELdymR61fqy9Ckn//Ek20dvtPouud/7hwtoB7m9o4N6FrhYLVQ=="],
+    "@query-farm/vgi": ["@query-farm/vgi@0.7.0", "", { "dependencies": { "@noble/ciphers": "^2.2.0", "@query-farm/flechette": "^2.4.0" }, "peerDependencies": { "@query-farm/apache-arrow": "^21.1.1", "@query-farm/vgi-rpc": "^0.9.0" } }, "sha512-MFAD0x797J/Frs3PQN/TOU9Bivpcb4Z8d5a6m2seqqUpNgnEpktH42WWorkLhXmnMrF2Cwv+8a64O9M50ja0QA=="],
 
     "@query-farm/vgi-rpc": ["@query-farm/vgi-rpc@0.9.0", "", { "dependencies": { "@noble/ciphers": "^2.2.0", "@query-farm/apache-arrow": "^21.1.1", "@query-farm/flechette": "^2.4.0", "fzstd": "^0.1.1", "oauth4webapi": "^3.8.6" }, "peerDependencies": { "@aws-sdk/client-s3": ">=3.0.0", "@aws-sdk/s3-request-presigner": ">=3.0.0", "@google-cloud/storage": ">=7.0.0", "@opentelemetry/api": ">=1.4.0" }, "optionalPeers": ["@aws-sdk/client-s3", "@aws-sdk/s3-request-presigner", "@google-cloud/storage", "@opentelemetry/api"] }, "sha512-K6CoK9aBuNmg0OM78xe0Qcmt7gxJOskvKdG5WnjCmaa+o/F2SvQdx6vRg83EaOMJUEYo9RuJ4IXDZnQS8evS8g=="],
 

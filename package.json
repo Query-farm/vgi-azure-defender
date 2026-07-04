@@ -8,7 +8,7 @@
   "dependencies": {
     "@vgi-azure/graph-core": "file:../vgi-azure-graph-core",
     "@vgi-azure/node-auth": "file:../vgi-azure-node-auth",
-    "@query-farm/vgi": "file:../vgi-typescript/query-farm-vgi-0.6.0.tgz",
+    "@query-farm/vgi": "^0.7.0",
     "@query-farm/apache-arrow": "^21.1.1",
     "@query-farm/vgi-rpc": "^0.9.0"
   }
