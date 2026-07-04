@@ -6,8 +6,8 @@
   "license": "LicenseRef-Proprietary",
   "scripts": { "test": "bun test" },
   "dependencies": {
-    "@vgi-azure/graph-core": "git+ssh://git@github.com/Query-farm/vgi-azure-graph-core.git",
-    "@vgi-azure/node-auth": "git+ssh://git@github.com/Query-farm/vgi-azure-node-auth.git",
+    "@vgi-azure/graph-core": "github:Query-farm/vgi-azure-graph-core",
+    "@vgi-azure/node-auth": "github:Query-farm/vgi-azure-node-auth",
     "@query-farm/vgi": "^0.7.0",
     "@query-farm/apache-arrow": "^21.1.1",
     "@query-farm/vgi-rpc": "^0.9.0"
