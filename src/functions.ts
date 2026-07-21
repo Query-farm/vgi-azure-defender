@@ -157,6 +157,10 @@ export function makeIncidentsFunction(clientFactory: ClientFactory) {
         sql: "SELECT _watermark_next FROM azure.main.security_incidents() WHERE _row_kind = 'marker'",
         description: "Read the watermark cursor to persist for the next sync",
       },
+      {
+        sql: "SELECT id, display_name, severity FROM azure.main.security_incidents(filter := 'severity eq ''high''') WHERE _row_kind = 'incident'",
+        description: "Server-side severity pushdown via the OData filter argument (fetches fewer rows than a client-side WHERE)",
+      },
     ],
     tags: {
       "vgi.category": "security-watermark",
@@ -194,6 +198,30 @@ export function makeIncidentsFunction(clientFactory: ClientFactory) {
         "alerts are a convenience join only; use `security_alerts` for authoritative alert " +
         "completeness (`_alerts_truncated` flags a capped incident).",
       "vgi.result_columns_schema": JSON.stringify(INCIDENT_RESULT_COLUMNS),
+      // VGI515: the native duckdb_functions().examples carrier drops descriptions,
+      // so carry a byte-identical described-JSON copy of `examples` as a tag.
+      "vgi.example_queries": JSON.stringify([
+        {
+          description: "Cold-start sync of all incidents (incident rows only)",
+          sql: "SELECT id, display_name, severity, status FROM azure.main.security_incidents() WHERE _row_kind = 'incident'",
+        },
+        {
+          description: "Incremental sync replaying a previously saved watermark cursor",
+          sql: "SELECT id, display_name, status FROM azure.main.security_incidents(since := '<_watermark_next>') WHERE _row_kind = 'incident'",
+        },
+        {
+          description: "The alerts correlated to each incident (convenience join; use security_alerts for completeness)",
+          sql: "SELECT incident_id, title, severity FROM azure.main.security_incidents() WHERE _row_kind = 'alert'",
+        },
+        {
+          description: "Read the watermark cursor to persist for the next sync",
+          sql: "SELECT _watermark_next FROM azure.main.security_incidents() WHERE _row_kind = 'marker'",
+        },
+        {
+          description: "Server-side severity pushdown via the OData filter argument (fetches fewer rows than a client-side WHERE)",
+          sql: "SELECT id, display_name, severity FROM azure.main.security_incidents(filter := 'severity eq ''high''') WHERE _row_kind = 'incident'",
+        },
+      ]),
     },
     onBind: () => ({ outputSchema: INCIDENT_SCHEMA }),
     initialState: (p) => {
@@ -265,6 +293,10 @@ export function makeAlertsFunction(clientFactory: ClientFactory) {
         sql: "SELECT _watermark_next FROM azure.main.security_alerts() WHERE _row_kind = 'marker'",
         description: "Read the watermark cursor to persist for the next sync",
       },
+      {
+        sql: "SELECT id, title, severity FROM azure.main.security_alerts(filter := 'severity eq ''high''') WHERE _row_kind = 'alert'",
+        description: "Server-side severity pushdown via the OData filter argument (fetches fewer rows than a client-side WHERE)",
+      },
     ],
     tags: {
       "vgi.category": "security-watermark",
@@ -299,6 +331,30 @@ export function makeAlertsFunction(clientFactory: ClientFactory) {
         "This is the authoritative alert feed; the alerts expanded by `security_incidents` are a " +
         "convenience join only.",
       "vgi.result_columns_schema": JSON.stringify(ALERT_RESULT_COLUMNS),
+      // VGI515: the native duckdb_functions().examples carrier drops descriptions,
+      // so carry a byte-identical described-JSON copy of `examples` as a tag.
+      "vgi.example_queries": JSON.stringify([
+        {
+          description: "Cold-start sync of all alerts (alert rows only)",
+          sql: "SELECT id, title, severity, category FROM azure.main.security_alerts() WHERE _row_kind = 'alert'",
+        },
+        {
+          description: "Incremental sync replaying a previously saved watermark cursor",
+          sql: "SELECT id, title, status FROM azure.main.security_alerts(since := '<_watermark_next>') WHERE _row_kind = 'alert'",
+        },
+        {
+          description: "High-severity alerts only",
+          sql: "SELECT id, title, severity FROM azure.main.security_alerts() WHERE _row_kind = 'alert' AND severity = 'high'",
+        },
+        {
+          description: "Read the watermark cursor to persist for the next sync",
+          sql: "SELECT _watermark_next FROM azure.main.security_alerts() WHERE _row_kind = 'marker'",
+        },
+        {
+          description: "Server-side severity pushdown via the OData filter argument (fetches fewer rows than a client-side WHERE)",
+          sql: "SELECT id, title, severity FROM azure.main.security_alerts(filter := 'severity eq ''high''') WHERE _row_kind = 'alert'",
+        },
+      ]),
     },
     onBind: () => ({ outputSchema: ALERT_SCHEMA }),
     initialState: (p) => {
