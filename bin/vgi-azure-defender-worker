@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Launch wrapper so DuckDB's vgi extension can spawn this TypeScript worker via a
+# plain filesystem LOCATION:
+#   ATTACH 'azure' AS azure (TYPE vgi, LOCATION '/path/to/vgi-azure-defender/bin/vgi-azure-defender-worker',
+#          TENANT_ID '…', CLIENT_ID '…', CLIENT_SECRET '…');
+# VGI_BUN_CONDITIONS (e.g. "worker") selects the flechette Arrow backend when set.
+exec bun ${VGI_BUN_CONDITIONS:+--conditions "$VGI_BUN_CONDITIONS"} run "$(dirname "$0")/../src/worker.ts" "$@"

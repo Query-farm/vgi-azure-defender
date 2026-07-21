@@ -1,0 +1,6 @@
+node_modules
+.git
+dist
+*.tsbuildinfo
+duckdb_unittest_tempdir
+.DS_Store

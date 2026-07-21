@@ -1,0 +1,31 @@
+name: Release
+
+# On a vX.Y.Z tag: gate on the full test suite (ci.yml as a `needs:` job), then
+# compile the worker into a standalone Bun executable for every DuckDB platform and
+# attach the signed, attested archives to the GitHub Release (shared ts-release.yml).
+# `bun build --compile` bundles the github:-sourced shared libs (@vgi-azure/graph-core,
+# @vgi-azure/node-auth) into the binary, so it boots standalone with no node_modules.
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: [ci]
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    uses: Query-farm/vgi-actions/.github/workflows/ts-release.yml@main
+    secrets: inherit
+    with:
+      bin: vgi-azure-defender-worker
+      entry: src/worker.ts
+      version_check_cmd: ci/check-version.sh
