@@ -104,44 +104,25 @@ const CATALOG_TAGS: Record<string, string> = {
       sql: "SELECT feed, source_endpoint, requires_secret FROM azure.main.feeds ORDER BY feed",
     },
   ]),
-  // The agent-suitability suite (VGI520/VGI920), catalog only. All fields except
-  // `prompt` are GRADER-ONLY. A live incident/alert scan needs an azure_graph secret and
-  // returns tenant-specific, non-deterministic data, so those tasks omit an exact-compare
-  // reference_sql and instead assert a stable structural invariant via check_sql — every
-  // scan closes with exactly one marker row — which also records object coverage. The
-  // credential-free `feeds` manifest view is graded by an exact check_sql. success_criteria
-  // is the LLM-judge fallback describing what a correct analyst answer looks like.
+  // The agent-suitability suite (VGI520/VGI920), catalog only. Only each task's name +
+  // prompt is published here (VGI416); the grader fields live in the private sidecar
+  // vgi-agent-tests.yaml, keyed by task name, and are never shown to the analyst.
   "vgi.agent_test_tasks": JSON.stringify([
     {
       name: "high_severity_incidents",
       prompt: "List the open high-severity security incidents with their display name and severity.",
-      check_sql:
-        "SELECT count(*) = 1 FROM azure.main.security_incidents() WHERE _row_kind = 'marker'",
-      success_criteria:
-        "The answer queries security_incidents(), filters to incident data rows (_row_kind = 'incident'), keeps severity = 'high' and an open status, and returns display_name and severity.",
     },
     {
       name: "save_watermark_cursor",
       prompt: "After syncing incidents, how do I get the cursor to use for the next incremental sync?",
-      check_sql:
-        "SELECT _watermark_next IS NOT NULL FROM azure.main.security_incidents() WHERE _row_kind = 'marker'",
-      success_criteria:
-        "The answer selects _watermark_next from the marker row (_row_kind = 'marker') of security_incidents() and explains it should be replayed via the since argument on the next scan.",
     },
     {
       name: "authoritative_alerts",
       prompt: "What is the right way to get a complete, up-to-date list of security alerts?",
-      check_sql:
-        "SELECT count(*) = 1 FROM azure.main.security_alerts() WHERE _row_kind = 'marker'",
-      success_criteria:
-        "The answer uses security_alerts() (not the expanded alerts from security_incidents) and explains it is the authoritative alert feed, filtering to alert data rows (_row_kind = 'alert').",
     },
     {
       name: "browse_available_feeds",
       prompt: "What security data feeds does this catalog provide, and which endpoint backs each?",
-      check_sql: "SELECT count(*) = 2 FROM azure.main.feeds",
-      success_criteria:
-        "The answer names both feeds — security_incidents (/security/incidents) and security_alerts (/security/alerts_v2) — e.g. by browsing the feeds view; both are watermark feeds requiring an azure_graph secret.",
     },
   ]),
 };

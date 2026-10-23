@@ -1,0 +1,32 @@
+# Private grader sidecar for `vgi-lint simulate` (and `lint`'s VGI520 coverage). The worker
+# publishes only task names + prompts in `vgi.agent_test_tasks` (src/catalog.ts); these
+# grader fields are keyed by that name and never sent to the analyst agent.
+#
+# All fields except `prompt` are GRADER-ONLY. A live incident/alert scan needs an
+# azure_graph secret and returns tenant-specific, non-deterministic data, so those tasks
+# omit an exact-compare reference_sql and instead assert a stable structural invariant via
+# check_sql — every scan closes with exactly one marker row — which also records object
+# coverage. The credential-free `feeds` manifest view is graded by an exact check_sql.
+# success_criteria is the LLM-judge fallback describing what a correct analyst answer looks
+# like.
+tasks:
+  - name: high_severity_incidents
+    check_sql: >-
+      SELECT count(*) = 1 FROM azure.main.security_incidents() WHERE _row_kind = 'marker'
+    success_criteria: >-
+      The answer queries security_incidents(), filters to incident data rows (_row_kind = 'incident'), keeps severity = 'high' and an open status, and returns display_name and severity.
+  - name: save_watermark_cursor
+    check_sql: >-
+      SELECT _watermark_next IS NOT NULL FROM azure.main.security_incidents() WHERE _row_kind = 'marker'
+    success_criteria: >-
+      The answer selects _watermark_next from the marker row (_row_kind = 'marker') of security_incidents() and explains it should be replayed via the since argument on the next scan.
+  - name: authoritative_alerts
+    check_sql: >-
+      SELECT count(*) = 1 FROM azure.main.security_alerts() WHERE _row_kind = 'marker'
+    success_criteria: >-
+      The answer uses security_alerts() (not the expanded alerts from security_incidents) and explains it is the authoritative alert feed, filtering to alert data rows (_row_kind = 'alert').
+  - name: browse_available_feeds
+    check_sql: >-
+      SELECT count(*) = 2 FROM azure.main.feeds
+    success_criteria: >-
+      The answer names both feeds — security_incidents (/security/incidents) and security_alerts (/security/alerts_v2) — e.g. by browsing the feeds view; both are watermark feeds requiring an azure_graph secret.
