@@ -123,6 +123,9 @@ function requireSecret(fn: string, secrets: unknown): Record<string, unknown> {
 export function makeIncidentsFunction(clientFactory: ClientFactory) {
   return defineTableFunction<IncidentsArgs, State>({
     name: "security_incidents",
+    // Request the azure_graph secret at bind so the connector delivers it (a
+    // missing secret resolves to nothing, so credential-free LIMIT 0 binds still work).
+    requiredSecrets: ["azure_graph"],
     description:
       "Microsoft 365 Defender / Sentinel incidents (with $expand=alerts) via Microsoft Graph, " +
       "cursored by a lastUpdateDateTime watermark (safety-lag, ge boundary, dedup-by-id). " +
@@ -260,6 +263,9 @@ export function makeIncidentsFunction(clientFactory: ClientFactory) {
 export function makeAlertsFunction(clientFactory: ClientFactory) {
   return defineTableFunction<CommonArgs, State>({
     name: "security_alerts",
+    // Request the azure_graph secret at bind so the connector delivers it (a
+    // missing secret resolves to nothing, so credential-free LIMIT 0 binds still work).
+    requiredSecrets: ["azure_graph"],
     description:
       "Microsoft 365 Defender / Sentinel alerts (alerts_v2) via Microsoft Graph, cursored by a " +
       "lastUpdateDateTime watermark (safety-lag, ge boundary, dedup-by-id). REQUIRED source of " +
