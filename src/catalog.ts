@@ -30,6 +30,7 @@ export const AZURE_GRAPH_SECRET: SecretTypeDescriptor = {
 /** Catalog-level tags: docs, discovery, provenance, and the agent-test suite. */
 const CATALOG_TAGS: Record<string, string> = {
   "vgi.title": "Microsoft Defender Security",
+  "vgi.subtitle": "Incremental SQL feeds of Microsoft 365 Defender / Sentinel security incidents and alerts for security teams.",
   "vgi.doc_llm":
     "Microsoft 365 Defender / Microsoft Sentinel security incidents and alerts as SQL watermark " +
     "table functions over the Microsoft Graph security API. Reach for it to sync the tenant's " +
