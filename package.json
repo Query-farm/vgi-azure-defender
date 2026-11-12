@@ -1,6 +1,6 @@
 {
   "name": "@vgi-azure/defender",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "main": "src/worker.ts",
   "license": "MIT",
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@query-farm/apache-arrow": "^21.1.1",
-    "@query-farm/vgi": "^0.49.1",
+    "@query-farm/vgi": "^0.50.0",
     "@query-farm/vgi-rpc": "^0.29.7",
     "@vgi-azure/graph-core": "github:Query-farm/vgi-azure-graph-core",
     "@vgi-azure/node-auth": "github:Query-farm/vgi-azure-node-auth"

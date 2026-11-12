@@ -21,10 +21,21 @@ export const AZURE_GRAPH_SECRET: SecretTypeDescriptor = {
   name: "azure_graph",
   description: "Microsoft Entra app-only (client-credentials) credentials for Microsoft Graph",
   schema: new Schema([
-    new Field("tenant_id", new Utf8(), true),
-    new Field("client_id", new Utf8(), true),
-    new Field("client_secret", new Utf8(), true, new Map([["redact", "true"]])),
-  ]),
+    new Field("tenant_id", new Utf8(), true, new Map([["vgi_doc", "Directory (tenant) ID from the app registration's Overview page in Microsoft Entra ID"]])),
+    new Field("client_id", new Utf8(), true, new Map([["vgi_doc", "Application (client) ID from the app registration's Overview page"]])),
+    new Field(
+      "client_secret",
+      new Utf8(),
+      true,
+      new Map([
+        ["redact", "true"],
+        ["vgi_doc", "Client secret value created under the app registration's Certificates & secrets page"],
+      ]),
+    ),
+  ], new Map([
+    // Register an app, create a client secret, then grant it the Microsoft Graph SecurityAlert.Read.All application permission (admin-consented).
+    ["vgi_doc_url", "https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app"],
+  ])),
 };
 
 /** Catalog-level tags: docs, discovery, provenance, and the agent-test suite. */
@@ -46,16 +57,13 @@ const CATALOG_TAGS: Record<string, string> = {
   "vgi.doc_md":
     "## Microsoft Defender Security\n\n" +
     "Incremental (watermark) access to Microsoft 365 Defender / Microsoft Sentinel security data " +
-    "via the Microsoft Graph security API, exposed as two DuckDB table functions.\n\n" +
-    "- **`security_incidents`** — Defender/Sentinel incidents with their correlated alerts " +
-    "(`$expand=alerts`) as an incremental feed.\n" +
-    "- **`security_alerts`** — the authoritative Defender/Sentinel alerts (`alerts_v2`) feed as an " +
-    "incremental feed.\n\n" +
-    "Each function returns changed rows plus a single marker row (`_row_kind = 'marker'`) whose " +
+    "via the Microsoft Graph security API: an incidents feed (each incident with its correlated " +
+    "alerts, `$expand=alerts`) and the authoritative alerts (`alerts_v2`) feed.\n\n" +
+    "Each feed returns changed rows plus a single marker row (`_row_kind = 'marker'`) whose " +
     "`_watermark_next` column holds the ISO-8601 cursor to persist and replay as the next scan's " +
     "`since`. Call with no arguments for a bounded cold start; pass `since := '<_watermark_next>'` " +
     "for an incremental sync. The incident watermark does NOT guarantee alert-level freshness — use " +
-    "`security_alerts` for authoritative alert completeness. An app-only `azure_graph` secret " +
+    "the alerts feed for authoritative alert completeness. An app-only `azure_graph` secret " +
     "(Microsoft Entra client credentials) is required.",
   "vgi.keywords": JSON.stringify([
     "azure",
@@ -195,15 +203,14 @@ const SCHEMA_TAGS: Record<string, string> = {
     "id. `status` is a lifecycle field, never a tombstone.",
   "vgi.doc_md":
     "## Defender security watermark functions\n\n" +
-    "| Function | Source | Returns |\n" +
-    "| --- | --- | --- |\n" +
-    "| `security_incidents` | `/security/incidents` (`$expand=alerts`) | changed incidents + their alerts + watermark |\n" +
-    "| `security_alerts` | `/security/alerts_v2` | changed alerts + watermark |\n\n" +
+    "Two incremental feeds over the Microsoft Graph security API: incidents " +
+    "(`/security/incidents`, `$expand=alerts`, returning changed incidents with their alerts) and " +
+    "alerts (`/security/alerts_v2`, returning changed alerts).\n\n" +
     "Both share the same shape: read data rows with `WHERE _row_kind <> 'marker'` (equivalently " +
     "`_watermark_next IS NULL`), and take the next cursor from the single marker row's " +
-    "`_watermark_next`. `security_incidents` interleaves `_row_kind` values `incident` and `alert`; " +
-    "`security_alerts` emits only `alert`. Use `security_alerts` for authoritative alert " +
-    "completeness. Each requires an app-only `azure_graph` secret.",
+    "`_watermark_next`. The incidents feed interleaves `_row_kind` values `incident` and `alert`; " +
+    "the alerts feed emits only `alert` and is the authoritative source for alert completeness. " +
+    "Each requires an app-only `azure_graph` secret.",
   "vgi.keywords": JSON.stringify([
     "microsoft defender",
     "sentinel",

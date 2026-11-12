@@ -54,7 +54,7 @@ const catalogInterface = new ReadOnlyCatalogInterface(makeCatalog(functions), re
 serveVgiWorker({
   name: "azure",
   doc: "Microsoft 365 Defender / Sentinel security incidents & alerts as incremental Microsoft Graph security watermark feeds (lastUpdateDateTime cursor).",
-  version: "0.3.0",
+  version: "0.4.0",
   repositoryUrl: "https://github.com/Query-farm/vgi-azure-defender",
   serverId: "vgi-azure-defender",
   registry,
