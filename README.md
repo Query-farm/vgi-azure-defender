@@ -85,3 +85,7 @@ ATTACH 'azure' AS azure (TYPE vgi, LOCATION '/path/to/vgi-azure-defender/bin/vgi
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Executed notebook
+
+[Compare capped and authoritative alert feeds](notebooks/README.md) with a synthetic, credential-free fixture running the real worker functions.

@@ -1,0 +1,133 @@
+{
+  "description": "Entirely synthetic incidents and alerts; no tenant/account data. Input order is deliberately biased to demonstrate why a capped expansion is not a sample.",
+  "page_size": 2,
+  "since": "2024-01-01T00:00:00Z",
+  "incidents": [
+    {
+      "id": "inc-bulk",
+      "displayName": "Synthetic bulk correlation",
+      "status": "active",
+      "severity": "high",
+      "createdDateTime": "2024-01-01T08:00:00Z",
+      "lastUpdateDateTime": "2024-01-01T10:00:00Z",
+      "alerts": [
+        {
+          "id": "bulk-1",
+          "title": "Synthetic bulk alert 1",
+          "status": "new",
+          "severity": "low",
+          "createdDateTime": "2024-01-01T08:00:00Z",
+          "lastUpdateDateTime": "2024-01-01T10:00:00Z"
+        },
+        {
+          "id": "bulk-2",
+          "title": "Synthetic bulk alert 2",
+          "status": "new",
+          "severity": "medium",
+          "createdDateTime": "2024-01-01T08:00:00Z",
+          "lastUpdateDateTime": "2024-01-01T10:00:00Z"
+        },
+        {
+          "id": "bulk-3",
+          "title": "Synthetic bulk alert 3",
+          "status": "new",
+          "severity": "high",
+          "createdDateTime": "2024-01-01T08:00:00Z",
+          "lastUpdateDateTime": "2024-01-01T10:00:00Z"
+        },
+        {
+          "id": "bulk-4",
+          "title": "Synthetic bulk alert 4",
+          "status": "new",
+          "severity": "high",
+          "createdDateTime": "2024-01-01T08:00:00Z",
+          "lastUpdateDateTime": "2024-01-01T10:00:00Z"
+        },
+        {
+          "id": "bulk-5",
+          "title": "Synthetic bulk alert 5",
+          "status": "new",
+          "severity": "high",
+          "createdDateTime": "2024-01-01T08:00:00Z",
+          "lastUpdateDateTime": "2024-01-01T10:00:00Z"
+        },
+        {
+          "id": "bulk-6",
+          "title": "Synthetic bulk alert 6",
+          "status": "new",
+          "severity": "high",
+          "createdDateTime": "2024-01-01T08:00:00Z",
+          "lastUpdateDateTime": "2024-01-01T10:00:00Z"
+        },
+        {
+          "id": "bulk-7",
+          "title": "Synthetic bulk alert 7",
+          "status": "new",
+          "severity": "medium",
+          "createdDateTime": "2024-01-01T08:00:00Z",
+          "lastUpdateDateTime": "2024-01-01T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "inc-mail",
+      "displayName": "Synthetic mail investigation",
+      "status": "active",
+      "severity": "high",
+      "createdDateTime": "2024-01-01T08:00:00Z",
+      "lastUpdateDateTime": "2024-01-01T10:00:00Z",
+      "alerts": [
+        {
+          "id": "mail-1",
+          "title": "Synthetic mail alert 1",
+          "status": "new",
+          "severity": "high",
+          "createdDateTime": "2024-01-01T08:00:00Z",
+          "lastUpdateDateTime": "2024-01-01T10:00:00Z"
+        },
+        {
+          "id": "mail-2",
+          "title": "Synthetic mail alert 2",
+          "status": "new",
+          "severity": "medium",
+          "createdDateTime": "2024-01-01T08:00:00Z",
+          "lastUpdateDateTime": "2024-01-01T10:00:00Z"
+        },
+        {
+          "id": "mail-3",
+          "title": "Synthetic mail alert 3",
+          "status": "new",
+          "severity": "low",
+          "createdDateTime": "2024-01-01T08:00:00Z",
+          "lastUpdateDateTime": "2024-01-01T10:00:00Z"
+        },
+        {
+          "id": "mail-4",
+          "title": "Synthetic mail alert 4",
+          "status": "new",
+          "severity": "low",
+          "createdDateTime": "2024-01-01T08:00:00Z",
+          "lastUpdateDateTime": "2024-01-01T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "inc-single",
+      "displayName": "Synthetic isolated review",
+      "status": "active",
+      "severity": "informational",
+      "createdDateTime": "2024-01-01T08:00:00Z",
+      "lastUpdateDateTime": "2024-01-01T10:00:00Z",
+      "alerts": [
+        {
+          "id": "single-1",
+          "title": "Synthetic single alert 1",
+          "status": "new",
+          "severity": "informational",
+          "createdDateTime": "2024-01-01T08:00:00Z",
+          "lastUpdateDateTime": "2024-01-01T10:00:00Z"
+        }
+      ]
+    }
+  ]
+}
