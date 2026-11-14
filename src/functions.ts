@@ -120,6 +120,58 @@ function requireSecret(fn: string, secrets: unknown): Record<string, unknown> {
   return secret as Record<string, unknown>;
 }
 
+// Composed examples: the incidents feed joined to the authoritative alerts feed. Each SQL
+// is defined once here and shared by security_incidents' examples (within its first 5,
+// which the vgi-lint agent simulator shows) and the schema-level vgi.example_queries.
+export const ACTIVE_INCIDENT_MITRE_EXAMPLE = {
+  description:
+    "Active incidents ranked by how many distinct MITRE ATT&CK techniques their alerts carry in the authoritative security_alerts feed (incidents with no technique-tagged alert in the window are omitted)",
+  sql:
+    "SELECT i.id, i.display_name, i.severity, count(DISTINCT t.technique) AS technique_count, " +
+    "list_sort(list(DISTINCT t.technique)) AS techniques " +
+    "FROM azure.main.security_incidents() AS i " +
+    "JOIN (SELECT incident_id, unnest(mitre_techniques) AS technique FROM azure.main.security_alerts() WHERE _row_kind = 'alert') AS t " +
+    "ON t.incident_id = i.id " +
+    "WHERE i._row_kind = 'incident' AND i.status = 'active' " +
+    "GROUP BY i.id, i.display_name, i.severity ORDER BY technique_count DESC, i.id",
+};
+
+export const TRUNCATED_INCIDENT_ALERTS_EXAMPLE = {
+  description:
+    "For incidents whose expanded alert set was capped (_alerts_truncated), list every alert from the authoritative security_alerts feed updated in the same lookback window",
+  sql:
+    "SELECT a.incident_id, a.id AS alert_id, a.title, a.severity, a.status " +
+    "FROM azure.main.security_alerts() AS a " +
+    "WHERE a._row_kind = 'alert' AND a.incident_id IN " +
+    "(SELECT id FROM azure.main.security_incidents() WHERE _row_kind = 'incident' AND _alerts_truncated) " +
+    "ORDER BY a.incident_id, a.id",
+};
+
+const INCIDENT_EXAMPLES = [
+  {
+    sql: "SELECT id, display_name, severity, status FROM azure.main.security_incidents() WHERE _row_kind = 'incident'",
+    description: "Cold-start sync of all incidents (incident rows only)",
+  },
+  {
+    sql: "SELECT id, display_name, status FROM azure.main.security_incidents(since := '<_watermark_next>') WHERE _row_kind = 'incident'",
+    description: "Incremental sync replaying a previously saved watermark cursor",
+  },
+  { sql: ACTIVE_INCIDENT_MITRE_EXAMPLE.sql, description: ACTIVE_INCIDENT_MITRE_EXAMPLE.description },
+  { sql: TRUNCATED_INCIDENT_ALERTS_EXAMPLE.sql, description: TRUNCATED_INCIDENT_ALERTS_EXAMPLE.description },
+  {
+    sql: "SELECT _watermark_next FROM azure.main.security_incidents() WHERE _row_kind = 'marker'",
+    description: "Read the watermark cursor to persist for the next sync",
+  },
+  {
+    sql: "SELECT incident_id, title, severity FROM azure.main.security_incidents() WHERE _row_kind = 'alert'",
+    description: "The alerts correlated to each incident (convenience join; use security_alerts for completeness)",
+  },
+  {
+    sql: "SELECT id, display_name, severity FROM azure.main.security_incidents(filter := 'severity eq ''high''') WHERE _row_kind = 'incident'",
+    description: "Server-side severity pushdown via the OData filter argument (fetches fewer rows than a client-side WHERE)",
+  },
+];
+
 export function makeIncidentsFunction(clientFactory: ClientFactory) {
   return defineTableFunction<IncidentsArgs, State>({
     name: "security_incidents",
@@ -143,28 +195,7 @@ export function makeIncidentsFunction(clientFactory: ClientFactory) {
       max_alerts:
         "Cap on the nested `$expand=alerts($top=N)` set fetched per incident. When an incident's real alert count exceeds this cap, its incident row's `_alerts_truncated` is true — fall back to `security_alerts` for the complete alert set. Defaults to `50`.",
     },
-    examples: [
-      {
-        sql: "SELECT id, display_name, severity, status FROM azure.main.security_incidents() WHERE _row_kind = 'incident'",
-        description: "Cold-start sync of all incidents (incident rows only)",
-      },
-      {
-        sql: "SELECT id, display_name, status FROM azure.main.security_incidents(since := '<_watermark_next>') WHERE _row_kind = 'incident'",
-        description: "Incremental sync replaying a previously saved watermark cursor",
-      },
-      {
-        sql: "SELECT incident_id, title, severity FROM azure.main.security_incidents() WHERE _row_kind = 'alert'",
-        description: "The alerts correlated to each incident (convenience join; use security_alerts for completeness)",
-      },
-      {
-        sql: "SELECT _watermark_next FROM azure.main.security_incidents() WHERE _row_kind = 'marker'",
-        description: "Read the watermark cursor to persist for the next sync",
-      },
-      {
-        sql: "SELECT id, display_name, severity FROM azure.main.security_incidents(filter := 'severity eq ''high''') WHERE _row_kind = 'incident'",
-        description: "Server-side severity pushdown via the OData filter argument (fetches fewer rows than a client-side WHERE)",
-      },
-    ],
+    examples: INCIDENT_EXAMPLES,
     tags: {
       "vgi.category": "security-watermark",
       "vgi.title": "Defender Incidents Feed",
@@ -203,28 +234,7 @@ export function makeIncidentsFunction(clientFactory: ClientFactory) {
       "vgi.result_columns_schema": JSON.stringify(INCIDENT_RESULT_COLUMNS),
       // VGI515: the native duckdb_functions().examples carrier drops descriptions,
       // so carry a byte-identical described-JSON copy of `examples` as a tag.
-      "vgi.example_queries": JSON.stringify([
-        {
-          description: "Cold-start sync of all incidents (incident rows only)",
-          sql: "SELECT id, display_name, severity, status FROM azure.main.security_incidents() WHERE _row_kind = 'incident'",
-        },
-        {
-          description: "Incremental sync replaying a previously saved watermark cursor",
-          sql: "SELECT id, display_name, status FROM azure.main.security_incidents(since := '<_watermark_next>') WHERE _row_kind = 'incident'",
-        },
-        {
-          description: "The alerts correlated to each incident (convenience join; use security_alerts for completeness)",
-          sql: "SELECT incident_id, title, severity FROM azure.main.security_incidents() WHERE _row_kind = 'alert'",
-        },
-        {
-          description: "Read the watermark cursor to persist for the next sync",
-          sql: "SELECT _watermark_next FROM azure.main.security_incidents() WHERE _row_kind = 'marker'",
-        },
-        {
-          description: "Server-side severity pushdown via the OData filter argument (fetches fewer rows than a client-side WHERE)",
-          sql: "SELECT id, display_name, severity FROM azure.main.security_incidents(filter := 'severity eq ''high''') WHERE _row_kind = 'incident'",
-        },
-      ]),
+      "vgi.example_queries": JSON.stringify(INCIDENT_EXAMPLES.map(({ description, sql }) => ({ description, sql }))),
     },
     onBind: () => ({ outputSchema: INCIDENT_SCHEMA }),
     initialState: (p) => {

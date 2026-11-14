@@ -30,3 +30,10 @@ tasks:
       SELECT count(*) = 2 FROM azure.main.feeds
     success_criteria: >-
       The answer names both feeds — security_incidents (/security/incidents) and security_alerts (/security/alerts_v2) — e.g. by browsing the feeds view; both are watermark feeds requiring an azure_graph secret.
+  # Composed task: needs security_incidents (active high-severity incident rows) joined
+  # to security_alerts (authoritative service_source per alert). Live tenant data can't be
+  # exact-compared and a structural check_sql would pass any answer, so this task is graded
+  # by success_criteria alone (the LLM judge reads the agent's actual query/answer).
+  - name: high_severity_incident_alert_sources
+    success_criteria: >-
+      The answer joins security_incidents() incident rows (_row_kind = 'incident', status = 'active', severity = 'high') to security_alerts() alert rows (_row_kind = 'alert') on the alert's incident_id = the incident's id, and reports the distinct service_source values per incident (e.g. grouped by incident id/display_name). Using only the capped $expand alert rows from security_incidents, or not restricting to active high-severity incidents, is incorrect.

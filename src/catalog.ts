@@ -13,6 +13,7 @@
 
 import { Schema, Field, Utf8 } from "@query-farm/apache-arrow";
 import type { CatalogDescriptor, SecretTypeDescriptor, VgiFunction } from "@query-farm/vgi";
+import { ACTIVE_INCIDENT_MITRE_EXAMPLE, TRUNCATED_INCIDENT_ALERTS_EXAMPLE } from "./functions.js";
 
 const REPO = "https://github.com/Query-farm/vgi-azure-defender";
 const ISSUES = `${REPO}/issues`;
@@ -132,6 +133,11 @@ const CATALOG_TAGS: Record<string, string> = {
     {
       name: "browse_available_feeds",
       prompt: "What security data feeds does this catalog provide, and which endpoint backs each?",
+    },
+    {
+      name: "high_severity_incident_alert_sources",
+      prompt:
+        "For each active high-severity incident, which alert-producing services (service_source) contributed alerts to it according to the complete alert feed?",
     },
   ]),
 };
@@ -257,6 +263,8 @@ const SCHEMA_TAGS: Record<string, string> = {
       description: "Authoritative alert feed, high severity only",
       sql: "SELECT id, title, severity, category FROM azure.main.security_alerts() WHERE _row_kind = 'alert' AND severity = 'high'",
     },
+    ACTIVE_INCIDENT_MITRE_EXAMPLE,
+    TRUNCATED_INCIDENT_ALERTS_EXAMPLE,
   ]),
 };
 

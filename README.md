@@ -52,6 +52,21 @@ CREATE SECRET azure_sp (TYPE azure_graph, TENANT_ID '<tenant-guid>', CLIENT_ID '
 
 For this worker the service principal needs the Microsoft Graph application permissions `SecurityIncident.Read.All` and `SecurityAlert.Read.All`.
 
+With the secret in place the two feeds can be joined. The alerts embedded in `security_incidents` are capped, so this query takes each active incident's alerts from the complete `security_alerts` feed and ranks the incidents by how many distinct MITRE ATT&CK techniques those alerts carry:
+
+```sql
+SELECT i.id, i.display_name, i.severity,
+       count(DISTINCT t.technique) AS technique_count,
+       list_sort(list(DISTINCT t.technique)) AS techniques
+FROM azure.main.security_incidents() AS i
+JOIN (SELECT incident_id, unnest(mitre_techniques) AS technique
+      FROM azure.main.security_alerts() WHERE _row_kind = 'alert') AS t
+  ON t.incident_id = i.id
+WHERE i._row_kind = 'incident' AND i.status = 'active'
+GROUP BY i.id, i.display_name, i.severity
+ORDER BY technique_count DESC, i.id;
+```
+
 ## Development
 
 Requires [Bun](https://bun.sh). `bun install` also fetches the shared `@vgi-azure/graph-core` package from GitHub.
