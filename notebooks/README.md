@@ -39,3 +39,12 @@ The fixture's runtime network fetch is disabled, POST is rejected, and no MSAL c
 ## Optional live prerequisite (not part of Run All)
 
 Live reads require a real `azure_graph` secret with Microsoft Entra client credentials and Graph application permissions `SecurityIncident.Read.All` and `SecurityAlert.Read.All`. Use the published connection with secrets provisioned outside saved notebook cells/outputs, following the [worker README](https://github.com/Query-farm/vgi-azure-defender#credentials). Do not replace the explicitly synthetic fixture silently: real feeds are changing, may contain sensitive records, and need their own bounded window and provenance. No live tenant was queried for this example.
+
+## SQL credential isolation
+
+The notebook creates Haybarn with a fresh temporary `secret_directory` and
+`allow_persistent_secrets=False` before attaching workers. It fully drains and
+checks an empty secret inventory, then creates only explicitly `TEMPORARY`
+public fixture secrets and verifies their `persistent=false`, `storage=memory`
+metadata. Cleanup removes the temporary directory after closing the connection.
+Existing user SQL secrets are neither read, modified nor deleted.
