@@ -39,6 +39,18 @@ export const AZURE_GRAPH_SECRET: SecretTypeDescriptor = {
   ])),
 };
 
+// Upstream references rendered into the catalog docs (VGI183: link out to the service, API
+// docs and app-registration/permission docs this worker actually calls).
+const SOURCES_MD =
+  "### Sources and references\n\n" +
+  "- [Microsoft Graph security API overview](https://learn.microsoft.com/en-us/graph/api/resources/security-api-overview) — the incidents/alerts data model\n" +
+  "- [List incidents](https://learn.microsoft.com/en-us/graph/api/security-list-incidents) — the `/security/incidents` endpoint behind `security_incidents`\n" +
+  "- [List alerts_v2](https://learn.microsoft.com/en-us/graph/api/security-list-alerts_v2) — the `/security/alerts_v2` endpoint behind `security_alerts`\n" +
+  "- [Microsoft Graph permissions reference](https://learn.microsoft.com/en-us/graph/permissions-reference) — `SecurityIncident.Read.All` / `SecurityAlert.Read.All` application permissions\n" +
+  "- [Register an app](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app) — create the app-only client credentials for the `azure_graph` secret";
+const SOURCES_LLM =
+  " Upstream Microsoft docs: Microsoft Graph security API overview https://learn.microsoft.com/en-us/graph/api/resources/security-api-overview; List incidents https://learn.microsoft.com/en-us/graph/api/security-list-incidents; List alerts_v2 https://learn.microsoft.com/en-us/graph/api/security-list-alerts_v2; Microsoft Graph permissions reference https://learn.microsoft.com/en-us/graph/permissions-reference; Register an app https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app.";
+
 /** Catalog-level tags: docs, discovery, provenance, and the agent-test suite. */
 const CATALOG_TAGS: Record<string, string> = {
   "vgi.title": "Microsoft Defender Security",
@@ -54,7 +66,7 @@ const CATALOG_TAGS: Record<string, string> = {
     "boundary is a safety-lagged `ge` window, so late-correlated rows are re-read and applied " +
     "idempotently by id. `status` is a lifecycle field, never a tombstone. Requires an app-only " +
     "(client-credentials) 'azure_graph' secret (tenant_id, client_id, client_secret) with Graph " +
-    "security read permission (SecurityIncident.Read.All, SecurityAlert.Read.All).",
+    "security read permission (SecurityIncident.Read.All, SecurityAlert.Read.All)." + SOURCES_LLM,
   "vgi.doc_md":
     "## Microsoft Defender Security\n\n" +
     "Incremental (watermark) access to Microsoft 365 Defender / Microsoft Sentinel security data " +
@@ -65,7 +77,7 @@ const CATALOG_TAGS: Record<string, string> = {
     "`since`. Call with no arguments for a bounded cold start; pass `since := '<_watermark_next>'` " +
     "for an incremental sync. The incident watermark does NOT guarantee alert-level freshness — use " +
     "the alerts feed for authoritative alert completeness. An app-only `azure_graph` secret " +
-    "(Microsoft Entra client credentials) is required.",
+    "(Microsoft Entra client credentials) is required.\n\n" + SOURCES_MD,
   "vgi.keywords": JSON.stringify([
     "azure",
     "microsoft defender",
