@@ -4,4 +4,21 @@
 #   ATTACH 'azure' AS azure (TYPE vgi, LOCATION '/path/to/vgi-azure-defender/bin/vgi-azure-defender-worker',
 #          TENANT_ID '…', CLIENT_ID '…', CLIENT_SECRET '…');
 # VGI_BUN_CONDITIONS (e.g. "worker") selects the flechette Arrow backend when set.
-exec bun ${VGI_BUN_CONDITIONS:+--conditions "$VGI_BUN_CONDITIONS"} run "$(dirname "$0")/../src/worker.ts" "$@"
+#
+# Transports: no arguments = stdio; `--unix PATH` (what DuckDB's `launch:` LOCATION
+# passes) = an AF_UNIX socket, both handled by the SDK in src/worker.ts;
+# `--http [--port N]` = HTTP via scripts/serve.ts, printing `PORT:<n>` once listening.
+here="$(cd "$(dirname "$0")" && pwd)"
+entry="$here/../src/worker.ts"
+if [ "${1:-}" = "--http" ]; then
+  shift
+  entry="$here/../scripts/serve.ts"
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --port) export PORT="$2"; shift 2 ;;
+      --port=*) export PORT="${1#--port=}"; shift ;;
+      *) break ;;
+    esac
+  done
+fi
+exec bun ${VGI_BUN_CONDITIONS:+--conditions "$VGI_BUN_CONDITIONS"} run "$entry" "$@"

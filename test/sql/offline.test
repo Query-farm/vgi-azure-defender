@@ -1,0 +1,74 @@
+# name: test/sql/offline.test
+# description: vgi-azure-defender without credentials or network: ATTACH, the advertised functions
+# and tables, and every catalog executable example (credential-free bind probes and
+# static manifests). Runs over every transport; the live Azure scans need an azure_graph
+# secret and are not exercised here.
+# group: [sql]
+
+require-env VGI_TEST_WORKER
+
+# Transport failures must fail the suite rather than silently skip it.
+set ignore_error_messages
+
+statement ok
+ATTACH 'azure' AS azure (TYPE vgi, LOCATION '{VGI_TEST_WORKER}');
+
+query TT
+SELECT DISTINCT schema_name, function_name FROM duckdb_functions() WHERE database_name = 'azure' ORDER BY ALL;
+----
+main	security_alerts
+main	security_incidents
+
+query TT
+SELECT schema_name, table_name FROM duckdb_tables() WHERE database_name = 'azure'
+UNION ALL SELECT schema_name, view_name FROM duckdb_views() WHERE database_name = 'azure' ORDER BY ALL;
+----
+main	feeds
+
+# incidents_bind_probe: Bind security_incidents and expose its result columns (credential-free; drop LIMIT 0 and attach an azure_graph secret to sync real incidents)
+query TT
+SELECT column_name, column_type FROM (DESCRIBE SELECT id, incident_id, display_name, status, severity, _row_kind, _watermark_next FROM azure.main.security_incidents() LIMIT 0);
+----
+id	VARCHAR
+incident_id	VARCHAR
+display_name	VARCHAR
+status	VARCHAR
+severity	VARCHAR
+_row_kind	VARCHAR
+_watermark_next	VARCHAR
+
+query I
+SELECT count(*) FROM (SELECT id, incident_id, display_name, status, severity, _row_kind, _watermark_next FROM azure.main.security_incidents() LIMIT 0);
+----
+0
+
+# alerts_bind_probe: Bind security_alerts and expose its result columns (credential-free; attach an azure_graph secret to sync real alerts)
+query TT
+SELECT column_name, column_type FROM (DESCRIBE SELECT id, incident_id, title, status, severity, category, _row_kind, _watermark_next FROM azure.main.security_alerts() LIMIT 0);
+----
+id	VARCHAR
+incident_id	VARCHAR
+title	VARCHAR
+status	VARCHAR
+severity	VARCHAR
+category	VARCHAR
+_row_kind	VARCHAR
+_watermark_next	VARCHAR
+
+query I
+SELECT count(*) FROM (SELECT id, incident_id, title, status, severity, category, _row_kind, _watermark_next FROM azure.main.security_alerts() LIMIT 0);
+----
+0
+
+# list_feeds: List the catalog's security feeds from the credential-free manifest view (runs with no secret)
+query TT
+SELECT column_name, column_type FROM (DESCRIBE SELECT feed, source_endpoint, requires_secret FROM azure.main.feeds ORDER BY feed);
+----
+feed	VARCHAR
+source_endpoint	VARCHAR
+requires_secret	BOOLEAN
+
+query I
+SELECT count(*) FROM (SELECT feed, source_endpoint, requires_secret FROM azure.main.feeds ORDER BY feed);
+----
+2

@@ -22,10 +22,43 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # The SQL test runner must speak the same VGI protocol as the community extension.
+  HAYBARN_VERSION: "2.0.0rc11"
+
 jobs:
   # Install, own-source typecheck, and bun unit tests (shared reusable workflow).
   ci:
     uses: Query-farm/vgi-actions/.github/workflows/ts-ci.yml@main
+
+  # SQL tests: test/sql/ through the published haybarn-unittest runner and the signed
+  # community vgi extension, over every transport (ci/run-integration.sh, as in the
+  # vgi-starter template). Credential-free: ATTACH, the advertised functions and tables,
+  # and the catalog's executable bind-probe examples; live Azure scans need a secret.
+  integration:
+    name: SQL tests (${{ matrix.transport }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        transport: [stdio, launch, http]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: astral-sh/setup-uv@v6
+      - name: Install worker dependencies
+        run: bun install --frozen-lockfile
+      - name: Install the SQL test runner
+        run: |
+          uv venv .tools
+          uv pip install -p .tools "haybarn-unittest==${HAYBARN_VERSION}"
+      - name: Run test/sql over ${{ matrix.transport }}
+        env:
+          WORKER: ${{ github.workspace }}/bin/vgi-azure-defender-worker
+          HAYBARN_UNITTEST: ${{ github.workspace }}/.tools/bin/haybarn-unittest
+          TRANSPORT: ${{ matrix.transport }}
+        run: ci/run-integration.sh
 
   # Metadata-quality gate (vgi-lint): scores the worker's catalog/schema/function/view
   # docs, tags, categories, per-arg docs, result schemas, and examples. execute:false keeps
