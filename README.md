@@ -10,7 +10,7 @@ Every [GitHub release](https://github.com/Query-farm/vgi-azure-defender/releases
 INSTALL vgi FROM community;
 LOAD vgi;
 
-ATTACH 'azure' AS azure (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-azure-defender@v0.4.2');
+ATTACH 'azure' AS azure (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-azure-defender@v0.4.3');
 
 -- Bind security_incidents and expose its result columns (credential-free; drop LIMIT 0
 -- and attach an azure_graph secret to sync real incidents)
@@ -25,7 +25,7 @@ The examples are credential-free `LIMIT 0` bind probes: they check that each fun
 
 All the Query Farm Azure workers use the catalog name `azure`. To attach more than one in the same session, give each its own alias (for example `ATTACH 'azure' AS azure_defender (...)`) and qualify queries with that alias instead of `azure`.
 
-Prebuilt binaries cover macOS (Apple silicon), Linux (x86-64 and arm64). `github-auto://` needs an explicit release tag; change `@v0.4.2` to move to a newer release.
+Prebuilt binaries cover macOS (Apple silicon), Linux (x86-64 and arm64). `github-auto://` needs an explicit release tag; change `@v0.4.3` to move to a newer release.
 
 ### Other ways to run it
 
@@ -46,7 +46,7 @@ To build and test the worker yourself, see [Development](#development).
 Live queries authenticate with an `azure_graph` secret holding app-only Microsoft Entra client credentials for a service principal: `TENANT_ID`, `CLIENT_ID` and `CLIENT_SECRET` (the client secret is redacted when secrets are listed). The worker registers the `azure_graph` secret type when it is attached, so create the secret after the `ATTACH`:
 
 ```sql
-ATTACH 'azure' AS azure (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-azure-defender@v0.4.2');
+ATTACH 'azure' AS azure (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-azure-defender@v0.4.3');
 CREATE SECRET azure_sp (TYPE azure_graph, TENANT_ID '<tenant-guid>', CLIENT_ID '<app-guid>', CLIENT_SECRET '<secret>');
 ```
 

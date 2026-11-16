@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.3 (2026-11-16)
+
+- SQL tests run over stdio, launch and http (the starter's run-integration.sh).
+
 ## 0.4.2 (2026-11-16)
 
 - Bump @query-farm/vgi to 0.50.1.
