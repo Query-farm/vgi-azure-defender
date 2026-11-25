@@ -1,6 +1,6 @@
 # Common tasks. `make help` lists them. Requires Bun (https://bun.sh) and uv (https://docs.astral.sh/uv/).
 
-HAYBARN_VERSION ?= 2.0.0rc11
+HAYBARN_VERSION ?= 2.0.1rc3
 WORKER          := $(CURDIR)/bin/vgi-azure-defender-worker
 TOOLS           := $(CURDIR)/.tools
 HAYBARN_UNITTEST := $(TOOLS)/bin/haybarn-unittest
